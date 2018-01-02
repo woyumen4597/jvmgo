@@ -3,6 +3,7 @@ package stores
 import (
 	"jvmgo/ch05/instructions/base"
 	"jvmgo/ch05/rtda"
+)
 
 // Store float into local variable
 type FSTORE struct{ base.Index8Instruction }

@@ -35,6 +35,16 @@ func (self *MemberInfo) Name() string {
 	return self.cp.getUtf8(self.nameIndex)
 }
 
-func (self *MemberInfo) Description() string {
+func (self *MemberInfo) Descriptor() string {
 	return self.cp.getUtf8(self.descriptionIndex)
+}
+
+func (self *MemberInfo) CodeAttribute() *CodeAttribute {
+	for _, attrInfo := range self.attributes {
+		switch attrInfo.(type) {
+		case *CodeAttribute:
+			return attrInfo.(*CodeAttribute)
+		}
+	}
+	return nil
 }
