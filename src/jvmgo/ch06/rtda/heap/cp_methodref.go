@@ -9,6 +9,10 @@ type MethodRef struct {
 	method *Method
 }
 
+func (self *MethodRef) Method() *Method {
+	return self.method
+}
+
 func newMethodRef(cp *ConstantPool, refInfo *classfile.ConstantMethodrefInfo) *MethodRef {
 	ref := &MethodRef{}
 	ref.cp = cp

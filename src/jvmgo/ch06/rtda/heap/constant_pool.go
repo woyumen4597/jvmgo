@@ -26,7 +26,7 @@ func newConstantPool(class *Class, cfCp classfile.ConstantPool) *ConstantPool {
 		case *classfile.ConstantFloatInfo:
 			floatInfo := cpInfo.(*classfile.ConstantFloatInfo)
 			consts[i] = floatInfo.Value() //float32
-		case classfile.ConstantLongInfo:
+		case *classfile.ConstantLongInfo:
 			longInfo := cpInfo.(*classfile.ConstantLongInfo)
 			consts[i] = longInfo.Value() //int64 two bits
 			i++

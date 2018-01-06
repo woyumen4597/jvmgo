@@ -75,7 +75,7 @@ func resolveInterfaces(class *Class) {
 }
 
 func link(class *Class) {
-	verfy(class)
+	verify(class)
 	prepare(class)
 }
 
@@ -83,7 +83,7 @@ func verify(class *Class) {
 	//todo
 }
 
-func perpare(class *Class) {
+func prepare(class *Class) {
 	calcInstanceFieldSlotIds(class)
 	calcStaticFieldSlotIds(class)
 	allocAndInitStaticVars(class)
@@ -92,11 +92,11 @@ func perpare(class *Class) {
 func calcInstanceFieldSlotIds(class *Class) {
 	slotId := uint(0)
 	if class.superClass != nil {
-		sloId = class.superClass.instanceSlotCount
+		slotId = class.superClass.instanceSlotCount
 	}
 	for _, field := range class.fields {
 		if !field.IsStatic() {
-			field.slotId = slotid
+			field.slotId = slotId
 			slotId++
 			if field.isLongOrDouble() {
 				slotId++
@@ -126,7 +126,7 @@ func (self *Field) isLongOrDouble() bool {
 func allocAndInitStaticVars(class *Class) {
 	class.staticVars = newSlots(class.staticSlotCount)
 	for _, field := range class.fields {
-		if field.IsStatic && field.IsFinal() {
+		if field.IsStatic() && field.IsFinal() {
 			initStaticFinalVar(class, field)
 		}
 	}

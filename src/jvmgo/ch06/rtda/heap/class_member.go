@@ -5,7 +5,7 @@ import (
 )
 
 type ClassMember struct {
-	accessFlags uint16
+	AccessFlags
 	name        string
 	descriptor  string
 	class       *Class
@@ -27,3 +27,19 @@ func (self *ClassMember) Descriptor() string {
 func (self *ClassMember) Class() *Class {
 	return self.class
 }
+
+func (self *ClassMember) isAccessibleTo(d *Class) bool{
+	if self.IsPublic(){
+		return true
+	}
+	c := self.class
+	if self.IsProtected(){
+		return d == c || d.isSubClassOf(c) || c.getPackageName() == d.getPackageName()
+	}
+	if !self.IsPrivate(){
+		return c.getPackageName()==d.getPackageName()
+	}
+	return d==c
+}
+
+

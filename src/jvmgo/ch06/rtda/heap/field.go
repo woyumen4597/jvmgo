@@ -25,12 +25,12 @@ func (self *Field) SlotId() uint {
 	return self.slotId
 }
 
-func (self *Field) ConstValueIndex() uint16 {
+func (self *Field) ConstValueIndex() uint {
 	return self.constValueIndex
 }
 
 func (self *Field) copyAttributes(cfField *classfile.MemberInfo) {
 	if valAttr := cfField.ConstantValueAttribute(); valAttr != nil {
-		self.constValueIndex = uint(valAttr.ConstValueIndex())
+		self.constValueIndex = uint(valAttr.ConstantValueIndex())
 	}
 }

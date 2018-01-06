@@ -1,7 +1,9 @@
 package heap
 
+
 import (
 	"jvmgo/ch06/classfile"
+	"strings"
 )
 
 type Class struct {
@@ -17,7 +19,7 @@ type Class struct {
 	interfaces        []*Class
 	instanceSlotCount uint
 	staticSlotCount   uint
-	staticVars        *Slots
+	staticVars        Slots
 }
 
 func newClass(cf *classfile.ClassFile) *Class {
@@ -33,56 +35,59 @@ func newClass(cf *classfile.ClassFile) *Class {
 }
 
 func (self *Class) IsPublic() bool {
-	return 0 != self.accessFlags && ACC_PUBLIC
+	return 0 != self.accessFlags & ACC_PUBLIC
 }
 
 func (self *Class) IsPrivate() bool {
-	return 0 != self.accessFlags && ACC_PRIVATE
+	return 0 != self.accessFlags & ACC_PRIVATE
 }
 
 func (self *Class) IsProtected() bool {
-	return 0 != self.accessFlags && ACC_PROTECTED
+	return 0 != self.accessFlags & ACC_PROTECTED
+}
+
+func (self *Class) IsInterface() bool{
+	return 0 != self.accessFlags & ACC_INTERFACE
+}
+
+func (self *Class) IsAbstract() bool{
+	return 0 != self.accessFlags & ACC_ABSTRACT
 }
 
 func (self *Class) IsStatic() bool {
-	return 0 != self.accessFlags && ACC_STATIC
+	return 0 != self.accessFlags & ACC_STATIC
 }
 
 func (self *Class) IsFinal() bool {
-	return 0 != self.accessFlags && ACC_FINAL
+	return 0 != self.accessFlags & ACC_FINAL
 }
 
 func (self *Class) IsSuper() bool {
-	return 0 != self.accessFlags && ACC_SUPER
+	return 0 != self.accessFlags & ACC_SUPER
+
 }
 
 func (self *Class) IsSynchronized() bool {
-	return 0 != self.accessFlags && ACC_SYNCHRONIZED
+	return 0 != self.accessFlags & ACC_SYNCHRONIZED
 }
 
-func (self *Class) IsVolatile() bool {
-	return 0 != self.accessFlags && ACC_VOLATILE
-}
 
 func (self *Class) IsBridge() bool {
-	return 0 != self.accessFlags && ACC_BRIDGE
+	return 0 != self.accessFlags & ACC_BRIDGE
 }
 
 func (self *Class) IsTransient() bool {
-	return 0 != self.accessFlags && ACC_TRANSIENT
+	return 0 != self.accessFlags & ACC_TRANSIENT
 }
 
 func (self *Class) IsVarargs() bool {
-	return 0 != self.accessFlags && ACC_VARARGS
+	return 0 != self.accessFlags & ACC_VARARGS
 }
 
 func (self *Class) IsVolatile() bool {
-	return 0 != self.accessFlags && ACC_VOLATILE
+	return 0 != self.accessFlags & ACC_VOLATILE
 }
 
-func (self *Class) IsVolatile() bool {
-	return 0 != self.accessFlags && ACC_VOLATILE
-}
 
 func (self *Class) String() string {
 	return "{Class name:" + self.name + "}"
@@ -101,3 +106,37 @@ func (self *Class) Methods() []*Method {
 func (self *Class) Fields() []*Field {
 	return self.fields
 }
+
+func (self *Class) isAccessibleTo(other *Class) bool{
+	return self.IsPublic()||self.getPackageName() == other.getPackageName()
+}
+func (self *Class) getPackageName() string{
+	if i := strings.LastIndex(self.name,"/");i>=0{
+		return self.name[:i]
+	}
+	return ""
+}
+
+
+func (self *Class) NewObject() *Object{
+	return newObject(self)
+}
+
+func (self *Class) StaticVars() Slots{
+	return self.staticVars
+}
+
+func (self *Class) GetMainMethod() *Method{
+	return self.getStaticMethod("main","([Ljava/lang/String;)V")
+}
+
+func (self *Class) getStaticMethod(name,descriptor string) *Method{
+	for _,method := range self.methods{
+		if method.IsStatic()&&method.name == name &&method.descriptor == descriptor{
+			return method
+		}
+	}
+	return nil
+}
+
+
