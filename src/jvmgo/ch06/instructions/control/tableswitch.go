@@ -1,10 +1,26 @@
 package control
 
-import (
-	"jvmgo/ch06/instructions/base"
-	"jvmgo/ch06/rtda"
-)
+import "jvmgo/ch06/instructions/base"
+import "jvmgo/ch06/rtda"
 
+/*
+tableswitch
+<0-3 byte pad>
+defaultbyte1
+defaultbyte2
+defaultbyte3
+defaultbyte4
+lowbyte1
+lowbyte2
+lowbyte3
+lowbyte4
+highbyte1
+highbyte2
+highbyte3
+highbyte4
+jump offsets...
+*/
+// Access jump table by index and jump
 type TABLE_SWITCH struct {
 	defaultOffset int32
 	low           int32
@@ -17,8 +33,8 @@ func (self *TABLE_SWITCH) FetchOperands(reader *base.BytecodeReader) {
 	self.defaultOffset = reader.ReadInt32()
 	self.low = reader.ReadInt32()
 	self.high = reader.ReadInt32()
-	jumpOffsetsCounts := self.high - self.low + 1
-	self.jumpOffsets = reader.ReadInt32s(jumpOffsetsCounts)
+	jumpOffsetsCount := self.high - self.low + 1
+	self.jumpOffsets = reader.ReadInt32s(jumpOffsetsCount)
 }
 
 func (self *TABLE_SWITCH) Execute(frame *rtda.Frame) {

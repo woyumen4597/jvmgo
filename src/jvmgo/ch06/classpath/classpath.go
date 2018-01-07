@@ -1,9 +1,7 @@
 package classpath
 
-import (
-	"os"
-	"path/filepath"
-)
+import "os"
+import "path/filepath"
 
 type Classpath struct {
 	bootClasspath Entry
@@ -20,14 +18,14 @@ func Parse(jreOption, cpOption string) *Classpath {
 
 func (self *Classpath) parseBootAndExtClasspath(jreOption string) {
 	jreDir := getJreDir(jreOption)
+
 	// jre/lib/*
 	jreLibPath := filepath.Join(jreDir, "lib", "*")
 	self.bootClasspath = newWildcardEntry(jreLibPath)
 
-	//jre/lib/ext/*
+	// jre/lib/ext/*
 	jreExtPath := filepath.Join(jreDir, "lib", "ext", "*")
 	self.extClasspath = newWildcardEntry(jreExtPath)
-
 }
 
 func getJreDir(jreOption string) string {
@@ -41,7 +39,6 @@ func getJreDir(jreOption string) string {
 		return filepath.Join(jh, "jre")
 	}
 	panic("Can not find jre folder!")
-
 }
 
 func exists(path string) bool {
@@ -60,6 +57,7 @@ func (self *Classpath) parseUserClasspath(cpOption string) {
 	self.userClasspath = newEntry(cpOption)
 }
 
+// className: fully/qualified/ClassName
 func (self *Classpath) ReadClass(className string) ([]byte, Entry, error) {
 	className = className + ".class"
 	if data, entry, err := self.bootClasspath.readClass(className); err == nil {

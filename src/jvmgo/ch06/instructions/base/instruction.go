@@ -1,8 +1,6 @@
 package base
 
-import (
-	"jvmgo/ch06/rtda"
-)
+import "jvmgo/ch06/rtda"
 
 type Instruction interface {
 	FetchOperands(reader *BytecodeReader)
@@ -10,13 +8,13 @@ type Instruction interface {
 }
 
 type NoOperandsInstruction struct {
+	// empty
 }
 
 func (self *NoOperandsInstruction) FetchOperands(reader *BytecodeReader) {
 	// nothing to do
 }
 
-//跳转指令
 type BranchInstruction struct {
 	Offset int
 }

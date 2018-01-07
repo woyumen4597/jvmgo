@@ -1,12 +1,10 @@
 package extended
 
-import (
-	"jvmgo/ch06/instructions/base"
-	"jvmgo/ch06/rtda"
-)
+import "jvmgo/ch06/instructions/base"
+import "jvmgo/ch06/rtda"
 
+// Branch if reference is null
 type IFNULL struct{ base.BranchInstruction }
-type IFNONNULL struct{ base.BranchInstruction }
 
 func (self *IFNULL) Execute(frame *rtda.Frame) {
 	ref := frame.OperandStack().PopRef()
@@ -14,6 +12,9 @@ func (self *IFNULL) Execute(frame *rtda.Frame) {
 		base.Branch(frame, self.Offset)
 	}
 }
+
+// Branch if reference not null
+type IFNONNULL struct{ base.BranchInstruction }
 
 func (self *IFNONNULL) Execute(frame *rtda.Frame) {
 	ref := frame.OperandStack().PopRef()

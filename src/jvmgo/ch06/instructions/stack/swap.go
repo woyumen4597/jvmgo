@@ -1,10 +1,9 @@
 package stack
 
-import (
-	"jvmgo/ch06/instructions/base"
-	"jvmgo/ch06/rtda"
-)
+import "jvmgo/ch06/instructions/base"
+import "jvmgo/ch06/rtda"
 
+// Swap the top two operand stack values
 type SWAP struct{ base.NoOperandsInstruction }
 
 func (self *SWAP) Execute(frame *rtda.Frame) {
@@ -13,5 +12,4 @@ func (self *SWAP) Execute(frame *rtda.Frame) {
 	slot2 := stack.PopSlot()
 	stack.PushSlot(slot1)
 	stack.PushSlot(slot2)
-
 }

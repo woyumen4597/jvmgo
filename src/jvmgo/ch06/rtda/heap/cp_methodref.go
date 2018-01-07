@@ -1,16 +1,10 @@
 package heap
 
-import (
-	"jvmgo/ch06/classfile"
-)
+import "jvmgo/ch06/classfile"
 
 type MethodRef struct {
 	MemberRef
 	method *Method
-}
-
-func (self *MethodRef) Method() *Method {
-	return self.method
 }
 
 func newMethodRef(cp *ConstantPool, refInfo *classfile.ConstantMethodrefInfo) *MethodRef {
@@ -18,4 +12,17 @@ func newMethodRef(cp *ConstantPool, refInfo *classfile.ConstantMethodrefInfo) *M
 	ref.cp = cp
 	ref.copyMemberRefInfo(&refInfo.ConstantMemberrefInfo)
 	return ref
+}
+
+func (self *MethodRef) ResolvedMethod() *Method {
+	if self.method == nil {
+		self.resolveMethodRef()
+	}
+	return self.method
+}
+
+// jvms8 5.4.3.3
+func (self *MethodRef) resolveMethodRef() {
+	//class := self.Class()
+	// todo
 }

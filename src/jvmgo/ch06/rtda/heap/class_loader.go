@@ -1,14 +1,19 @@
 package heap
 
-import (
-	"fmt"
-	"jvmgo/ch06/classfile"
-	"jvmgo/ch06/classpath"
-)
+import "fmt"
+import "jvmgo/ch06/classfile"
+import "jvmgo/ch06/classpath"
 
+/*
+class names:
+    - primitive types: boolean, byte, int ...
+    - primitive arrays: [Z, [B, [I ...
+    - non-array classes: java/lang/Object ...
+    - array classes: [Ljava/lang/Object; ...
+*/
 type ClassLoader struct {
 	cp       *classpath.Classpath
-	classMap map[string]*Class //load classes
+	classMap map[string]*Class // loaded classes
 }
 
 func NewClassLoader(cp *classpath.Classpath) *ClassLoader {
@@ -20,8 +25,10 @@ func NewClassLoader(cp *classpath.Classpath) *ClassLoader {
 
 func (self *ClassLoader) LoadClass(name string) *Class {
 	if class, ok := self.classMap[name]; ok {
-		return class //class has been loaded
+		// already loaded
+		return class
 	}
+
 	return self.loadNonArrayClass(name)
 }
 
@@ -41,6 +48,7 @@ func (self *ClassLoader) readClass(name string) ([]byte, classpath.Entry) {
 	return data, entry
 }
 
+// jvms 5.3.5
 func (self *ClassLoader) defineClass(data []byte) *Class {
 	class := parseClass(data)
 	class.loader = self
@@ -53,17 +61,18 @@ func (self *ClassLoader) defineClass(data []byte) *Class {
 func parseClass(data []byte) *Class {
 	cf, err := classfile.Parse(data)
 	if err != nil {
-		panic("java.lang.ClassFormatError")
+		//panic("java.lang.ClassFormatError")
+		panic(err)
 	}
 	return newClass(cf)
 }
 
+// jvms 5.4.3.1
 func resolveSuperClass(class *Class) {
 	if class.name != "java/lang/Object" {
 		class.superClass = class.loader.LoadClass(class.superClassName)
 	}
 }
-
 func resolveInterfaces(class *Class) {
 	interfaceCount := len(class.interfaceNames)
 	if interfaceCount > 0 {
@@ -80,9 +89,10 @@ func link(class *Class) {
 }
 
 func verify(class *Class) {
-	//todo
+	// todo
 }
 
+// jvms 5.4.2
 func prepare(class *Class) {
 	calcInstanceFieldSlotIds(class)
 	calcStaticFieldSlotIds(class)
@@ -117,10 +127,7 @@ func calcStaticFieldSlotIds(class *Class) {
 			}
 		}
 	}
-}
-
-func (self *Field) isLongOrDouble() bool {
-	return self.descriptor == "J" || self.descriptor == "D"
+	class.staticSlotCount = slotId
 }
 
 func allocAndInitStaticVars(class *Class) {
@@ -156,5 +163,4 @@ func initStaticFinalVar(class *Class, field *Field) {
 			panic("todo")
 		}
 	}
-
 }

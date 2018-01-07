@@ -1,9 +1,7 @@
 package math
 
-import (
-	"jvmgo/ch06/instructions/base"
-	"jvmgo/ch06/rtda"
-)
+import "jvmgo/ch06/instructions/base"
+import "jvmgo/ch06/rtda"
 
 // Boolean XOR int
 type IXOR struct{ base.NoOperandsInstruction }

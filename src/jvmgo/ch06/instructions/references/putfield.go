@@ -1,14 +1,11 @@
 package references
 
-import (
-	"jvmgo/ch06/instructions/base"
-	"jvmgo/ch06/rtda"
-	"jvmgo/ch06/rtda/heap"
-)
+import "jvmgo/ch06/instructions/base"
+import "jvmgo/ch06/rtda"
+import "jvmgo/ch06/rtda/heap"
 
-type PUT_FIELD struct {
-	base.Index16Instruction
-}
+// Set field in object
+type PUT_FIELD struct{ base.Index16Instruction }
 
 func (self *PUT_FIELD) Execute(frame *rtda.Frame) {
 	currentMethod := frame.Method()
@@ -17,11 +14,11 @@ func (self *PUT_FIELD) Execute(frame *rtda.Frame) {
 	fieldRef := cp.GetConstant(self.Index).(*heap.FieldRef)
 	field := fieldRef.ResolvedField()
 
-	if field.IsStatic(){
+	if field.IsStatic() {
 		panic("java.lang.IncompatibleClassChangeError")
 	}
-	if field.IsFinal(){
-		if currentClass != field.Class()||currentMethod.Name()!="<init>"{
+	if field.IsFinal() {
+		if currentClass != field.Class() || currentMethod.Name() != "<init>" {
 			panic("java.lang.IllegalAccessError")
 		}
 	}
@@ -30,45 +27,43 @@ func (self *PUT_FIELD) Execute(frame *rtda.Frame) {
 	slotId := field.SlotId()
 	stack := frame.OperandStack()
 
-	switch descriptor[0]{
-	case 'Z','B','C','S','I':
+	switch descriptor[0] {
+	case 'Z', 'B', 'C', 'S', 'I':
 		val := stack.PopInt()
 		ref := stack.PopRef()
-		if ref == nil{
+		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
-		ref.Fields().SetInt(slotId,val)
+		ref.Fields().SetInt(slotId, val)
 	case 'F':
 		val := stack.PopFloat()
 		ref := stack.PopRef()
-		if ref ==nil{
+		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
-		ref.Fields().SetFloat(slotId,val)
+		ref.Fields().SetFloat(slotId, val)
 	case 'J':
 		val := stack.PopLong()
 		ref := stack.PopRef()
-		if ref == nil{
+		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
-		ref.Fields().SetLong(slotId,val)
+		ref.Fields().SetLong(slotId, val)
 	case 'D':
 		val := stack.PopDouble()
 		ref := stack.PopRef()
-		if ref == nil{
+		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
-		ref.Fields().SetDouble(slotId,val)
-	case 'L','[':
+		ref.Fields().SetDouble(slotId, val)
+	case 'L', '[':
 		val := stack.PopRef()
 		ref := stack.PopRef()
-		if ref == nil{
+		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
-		ref.Fields().SetRef(slotId,val)
+		ref.Fields().SetRef(slotId, val)
+	default:
+		// todo
 	}
-
-
-
 }
-

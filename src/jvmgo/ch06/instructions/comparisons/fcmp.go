@@ -1,12 +1,20 @@
 package comparisons
 
-import (
-	"jvmgo/ch06/instructions/base"
-	"jvmgo/ch06/rtda"
-)
+import "jvmgo/ch06/instructions/base"
+import "jvmgo/ch06/rtda"
 
+// Compare float
 type FCMPG struct{ base.NoOperandsInstruction }
+
+func (self *FCMPG) Execute(frame *rtda.Frame) {
+	_fcmp(frame, true)
+}
+
 type FCMPL struct{ base.NoOperandsInstruction }
+
+func (self *FCMPL) Execute(frame *rtda.Frame) {
+	_fcmp(frame, false)
+}
 
 func _fcmp(frame *rtda.Frame, gFlag bool) {
 	stack := frame.OperandStack()
@@ -23,12 +31,4 @@ func _fcmp(frame *rtda.Frame, gFlag bool) {
 	} else {
 		stack.PushInt(-1)
 	}
-}
-
-func (self *FCMPG) Execute(frame *rtda.Frame) {
-	_fcmp(frame, true)
-}
-
-func (self *FCMPL) Execute(frame *rtda.Frame) {
-	_fcmp(frame, false)
 }

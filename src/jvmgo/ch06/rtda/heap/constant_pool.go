@@ -1,9 +1,7 @@
 package heap
 
-import (
-	"fmt"
-	"jvmgo/ch06/classfile"
-)
+import "fmt"
+import "jvmgo/ch06/classfile"
 
 type Constant interface{}
 
@@ -22,21 +20,21 @@ func newConstantPool(class *Class, cfCp classfile.ConstantPool) *ConstantPool {
 		switch cpInfo.(type) {
 		case *classfile.ConstantIntegerInfo:
 			intInfo := cpInfo.(*classfile.ConstantIntegerInfo)
-			consts[i] = intInfo.Value() //int32
+			consts[i] = intInfo.Value()
 		case *classfile.ConstantFloatInfo:
 			floatInfo := cpInfo.(*classfile.ConstantFloatInfo)
-			consts[i] = floatInfo.Value() //float32
+			consts[i] = floatInfo.Value()
 		case *classfile.ConstantLongInfo:
 			longInfo := cpInfo.(*classfile.ConstantLongInfo)
-			consts[i] = longInfo.Value() //int64 two bits
+			consts[i] = longInfo.Value()
 			i++
 		case *classfile.ConstantDoubleInfo:
 			doubleInfo := cpInfo.(*classfile.ConstantDoubleInfo)
-			consts[i] = doubleInfo.Value() //float64
+			consts[i] = doubleInfo.Value()
 			i++
 		case *classfile.ConstantStringInfo:
 			stringInfo := cpInfo.(*classfile.ConstantStringInfo)
-			consts[i] = stringInfo.String() //string
+			consts[i] = stringInfo.String()
 		case *classfile.ConstantClassInfo:
 			classInfo := cpInfo.(*classfile.ConstantClassInfo)
 			consts[i] = newClassRef(rtCp, classInfo)
@@ -49,11 +47,14 @@ func newConstantPool(class *Class, cfCp classfile.ConstantPool) *ConstantPool {
 		case *classfile.ConstantInterfaceMethodrefInfo:
 			methodrefInfo := cpInfo.(*classfile.ConstantInterfaceMethodrefInfo)
 			consts[i] = newInterfaceMethodRef(rtCp, methodrefInfo)
-
+		default:
+			// todo
 		}
 	}
+
 	return rtCp
 }
+
 func (self *ConstantPool) GetConstant(index uint) Constant {
 	if c := self.consts[index]; c != nil {
 		return c

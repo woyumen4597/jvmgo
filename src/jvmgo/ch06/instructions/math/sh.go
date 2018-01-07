@@ -1,16 +1,10 @@
 package math
 
-import (
-	"jvmgo/ch06/instructions/base"
-	"jvmgo/ch06/rtda"
-)
+import "jvmgo/ch06/instructions/base"
+import "jvmgo/ch06/rtda"
 
+// Shift left int
 type ISHL struct{ base.NoOperandsInstruction }
-type ISHR struct{ base.NoOperandsInstruction }
-type IUSHR struct{ base.NoOperandsInstruction }
-type LSHL struct{ base.NoOperandsInstruction }
-type LSHR struct{ base.NoOperandsInstruction }
-type LUSHR struct{ base.NoOperandsInstruction }
 
 func (self *ISHL) Execute(frame *rtda.Frame) {
 	stack := frame.OperandStack()
@@ -21,6 +15,9 @@ func (self *ISHL) Execute(frame *rtda.Frame) {
 	stack.PushInt(result)
 }
 
+// Arithmetic shift right int
+type ISHR struct{ base.NoOperandsInstruction }
+
 func (self *ISHR) Execute(frame *rtda.Frame) {
 	stack := frame.OperandStack()
 	v2 := stack.PopInt()
@@ -29,6 +26,9 @@ func (self *ISHR) Execute(frame *rtda.Frame) {
 	result := v1 >> s
 	stack.PushInt(result)
 }
+
+// Logical shift right int
+type IUSHR struct{ base.NoOperandsInstruction }
 
 func (self *IUSHR) Execute(frame *rtda.Frame) {
 	stack := frame.OperandStack()
@@ -39,6 +39,9 @@ func (self *IUSHR) Execute(frame *rtda.Frame) {
 	stack.PushInt(result)
 }
 
+// Shift left long
+type LSHL struct{ base.NoOperandsInstruction }
+
 func (self *LSHL) Execute(frame *rtda.Frame) {
 	stack := frame.OperandStack()
 	v2 := stack.PopInt()
@@ -48,6 +51,9 @@ func (self *LSHL) Execute(frame *rtda.Frame) {
 	stack.PushLong(result)
 }
 
+// Arithmetic shift right long
+type LSHR struct{ base.NoOperandsInstruction }
+
 func (self *LSHR) Execute(frame *rtda.Frame) {
 	stack := frame.OperandStack()
 	v2 := stack.PopInt()
@@ -56,6 +62,9 @@ func (self *LSHR) Execute(frame *rtda.Frame) {
 	result := v1 >> s
 	stack.PushLong(result)
 }
+
+// Logical shift right long
+type LUSHR struct{ base.NoOperandsInstruction }
 
 func (self *LUSHR) Execute(frame *rtda.Frame) {
 	stack := frame.OperandStack()

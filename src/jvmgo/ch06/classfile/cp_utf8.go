@@ -1,10 +1,15 @@
 package classfile
 
-import (
-	"fmt"
-	"unicode/utf16"
-)
+import "fmt"
+import "unicode/utf16"
 
+/*
+CONSTANT_Utf8_info {
+    u1 tag;
+    u2 length;
+    u1 bytes[length];
+}
+*/
 type ConstantUtf8Info struct {
 	str string
 }
@@ -14,6 +19,16 @@ func (self *ConstantUtf8Info) readInfo(reader *ClassReader) {
 	bytes := reader.readBytes(length)
 	self.str = decodeMUTF8(bytes)
 }
+
+func (self *ConstantUtf8Info) Str() string {
+	return self.str
+}
+
+/*
+func decodeMUTF8(bytes []byte) string {
+	return string(bytes) // not correct!
+}
+*/
 
 // mutf8 -> utf16 -> utf32 -> string
 // see java.io.DataInputStream.readUTF(DataInput)

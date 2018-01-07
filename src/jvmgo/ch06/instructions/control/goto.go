@@ -1,10 +1,9 @@
 package control
 
-import (
-	"jvmgo/ch06/instructions/base"
-	"jvmgo/ch06/rtda"
-)
+import "jvmgo/ch06/instructions/base"
+import "jvmgo/ch06/rtda"
 
+// Branch always
 type GOTO struct{ base.BranchInstruction }
 
 func (self *GOTO) Execute(frame *rtda.Frame) {
