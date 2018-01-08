@@ -18,6 +18,15 @@ type Class struct {
 	instanceSlotCount uint
 	staticSlotCount   uint
 	staticVars        Slots
+	initStarted       bool
+}
+
+func (c *Class) Name() string {
+	return c.name
+}
+
+func (c *Class) SuperClass() *Class {
+	return c.superClass
 }
 
 func newClass(cf *classfile.ClassFile) *Class {
@@ -68,10 +77,10 @@ func (self *Class) StaticVars() Slots {
 // jvms 5.4.4
 func (self *Class) isAccessibleTo(other *Class) bool {
 	return self.IsPublic() ||
-		self.getPackageName() == other.getPackageName()
+		self.GetPackageName() == other.GetPackageName()
 }
 
-func (self *Class) getPackageName() string {
+func (self *Class) GetPackageName() string {
 	if i := strings.LastIndex(self.name, "/"); i >= 0 {
 		return self.name[:i]
 	}
@@ -96,4 +105,17 @@ func (self *Class) getStaticMethod(name, descriptor string) *Method {
 
 func (self *Class) NewObject() *Object {
 	return newObject(self)
+}
+
+func (self *Class) InitStarted() bool{
+	return self.initStarted
+}
+
+func (self *Class) StartInit(){
+	self.initStarted = true
+}
+
+
+func (self *Class) GetClinitMethod() *Method{
+	return self.getStaticMethod("<clinit>","()V")
 }
