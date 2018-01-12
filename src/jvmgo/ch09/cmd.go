@@ -6,14 +6,14 @@ import "os"
 
 // java [-options] class [args...]
 type Cmd struct {
-	helpFlag    bool
-	versionFlag bool
+	helpFlag         bool
+	versionFlag      bool
 	verboseClassFlag bool
-	verboseInstFlag bool
-	cpOption    string
-	XjreOption  string
-	class       string
-	args        []string
+	verboseInstFlag  bool
+	cpOption         string
+	XjreOption       string
+	class            string
+	args             []string
 }
 
 func parseCmd() *Cmd {

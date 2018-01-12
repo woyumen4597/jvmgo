@@ -10,9 +10,9 @@ import . "jvmgo/ch09/instructions/extended"
 import . "jvmgo/ch09/instructions/loads"
 import . "jvmgo/ch09/instructions/math"
 import . "jvmgo/ch09/instructions/references"
+import . "jvmgo/ch09/instructions/reserved"
 import . "jvmgo/ch09/instructions/stack"
 import . "jvmgo/ch09/instructions/stores"
-import . "jvmgo/ch09/instructions/reserved"
 
 // NoOperandsInstruction singletons
 var (

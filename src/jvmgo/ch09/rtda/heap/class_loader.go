@@ -12,20 +12,49 @@ class names:
     - array classes: [Ljava/lang/Object; ...
 */
 type ClassLoader struct {
-	cp       *classpath.Classpath
-	verboseFlag  bool
-	classMap map[string]*Class // loaded classes
+	cp          *classpath.Classpath
+	verboseFlag bool
+	classMap    map[string]*Class // loaded classes
 }
 
-func NewClassLoader(cp *classpath.Classpath,verboseFlag bool) *ClassLoader {
+func NewClassLoader(cp *classpath.Classpath, verboseFlag bool) *ClassLoader {
 	loader := &ClassLoader{
-		cp:       cp,
+		cp:          cp,
 		verboseFlag: verboseFlag,
-		classMap: make(map[string]*Class),
+		classMap:    make(map[string]*Class),
 	}
+
 	loader.loadBasicClasses()
 	loader.loadPrimitiveClasses()
 	return loader
+}
+
+func (self *ClassLoader) loadBasicClasses() {
+	jlClassClass := self.LoadClass("java/lang/Class")
+	for _, class := range self.classMap {
+		if class.jClass == nil {
+			class.jClass = jlClassClass.NewObject()
+			class.jClass.extra = class
+		}
+	}
+}
+
+func (self *ClassLoader) loadPrimitiveClasses() {
+	for primitiveType, _ := range primitiveTypes {
+		self.loadPrimitiveClass(primitiveType)
+	}
+}
+
+func (self *ClassLoader) loadPrimitiveClass(className string) {
+	class := &Class{
+		accessFlags: ACC_PUBLIC, // todo
+		name:        className,
+		loader:      self,
+		initStarted: true,
+	}
+	class.jClass = self.classMap["java/lang/Class"].NewObject()
+	class.jClass.extra = class
+	self.classMap[className] = class
 }
 
 func (self *ClassLoader) LoadClass(name string) *Class {
@@ -33,13 +62,15 @@ func (self *ClassLoader) LoadClass(name string) *Class {
 		// already loaded
 		return class
 	}
+
 	var class *Class
-	if name[0] == '['{
+	if name[0] == '[' { // array class
 		class = self.loadArrayClass(name)
-	}else{
+	} else {
 		class = self.loadNonArrayClass(name)
 	}
-	if jlClassClass,ok := self.classMap["java/lang/Class"];ok{
+
+	if jlClassClass, ok := self.classMap["java/lang/Class"]; ok {
 		class.jClass = jlClassClass.NewObject()
 		class.jClass.extra = class
 	}
@@ -47,13 +78,31 @@ func (self *ClassLoader) LoadClass(name string) *Class {
 	return class
 }
 
+func (self *ClassLoader) loadArrayClass(name string) *Class {
+	class := &Class{
+		accessFlags: ACC_PUBLIC, // todo
+		name:        name,
+		loader:      self,
+		initStarted: true,
+		superClass:  self.LoadClass("java/lang/Object"),
+		interfaces: []*Class{
+			self.LoadClass("java/lang/Cloneable"),
+			self.LoadClass("java/io/Serializable"),
+		},
+	}
+	self.classMap[name] = class
+	return class
+}
+
 func (self *ClassLoader) loadNonArrayClass(name string) *Class {
 	data, entry := self.readClass(name)
 	class := self.defineClass(data)
 	link(class)
+
 	if self.verboseFlag {
 		fmt.Printf("[Loaded %s from %s]\n", name, entry)
 	}
+
 	return class
 }
 
@@ -73,47 +122,6 @@ func (self *ClassLoader) defineClass(data []byte) *Class {
 	resolveInterfaces(class)
 	self.classMap[class.name] = class
 	return class
-}
-func (self *ClassLoader) loadArrayClass(name string) *Class {
-	class := &Class{
-		accessFlags:ACC_PUBLIC,
-		name:name,
-		loader:self,
-		initStarted:true,
-		superClass:self.LoadClass("java/lang/Object"),
-		interfaces:[]*Class{
-			self.LoadClass("java/lang/Cloneable"),
-			self.LoadClass("java/io/Serializable"),
-		},
-	}
-	self.classMap[name] = class
-	return class
-}
-func (self *ClassLoader) loadBasicClasses() {
-	jlClassClass := self.LoadClass("java/lang/Class")
-	for _,class := range self.classMap{
-		if class.jClass == nil{
-			class.jClass = jlClassClass.NewObject()
-			class.jClass.extra = class
-		}
-	}
-}
-func (self *ClassLoader) loadPrimitiveClasses() {
-	for primitiveType,_ := range primitiveTypes{
-		self.loadPrimitiveClass(primitiveType)
-	}
-}
-
-func (self *ClassLoader) loadPrimitiveClass(className string) {
-	class := &Class{
-		accessFlags:ACC_PUBLIC,
-		name:className,
-		loader:self,
-		initStarted:true,
-	}
-	class.jClass = self.classMap["java/lang/Class"].NewObject()
-	class.jClass.extra = class
-	self.classMap[className] = class
 }
 
 func parseClass(data []byte) *Class {
@@ -219,9 +227,8 @@ func initStaticFinalVar(class *Class, field *Field) {
 			vars.SetDouble(slotId, val)
 		case "Ljava/lang/String;":
 			goStr := cp.GetConstant(cpIndex).(string)
-			jStr := JString(class.Loader(),goStr)
-			vars.SetRef(slotId,jStr)
+			jStr := JString(class.Loader(), goStr)
+			vars.SetRef(slotId, jStr)
 		}
-
 	}
 }

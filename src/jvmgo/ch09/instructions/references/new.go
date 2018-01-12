@@ -11,9 +11,9 @@ func (self *NEW) Execute(frame *rtda.Frame) {
 	cp := frame.Method().Class().ConstantPool()
 	classRef := cp.GetConstant(self.Index).(*heap.ClassRef)
 	class := classRef.ResolvedClass()
-	if !class.InitStarted(){
+	if !class.InitStarted() {
 		frame.RevertNextPC()
-		base.InitClass(frame.Thread(),class)
+		base.InitClass(frame.Thread(), class)
 		return
 	}
 

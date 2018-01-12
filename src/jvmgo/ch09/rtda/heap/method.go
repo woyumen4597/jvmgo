@@ -4,24 +4,19 @@ import "jvmgo/ch09/classfile"
 
 type Method struct {
 	ClassMember
-	maxStack  uint
-	maxLocals uint
-	code      []byte
+	maxStack     uint
+	maxLocals    uint
+	code         []byte
 	argSlotCount uint
-}
-
-func (self *Method) ArgSlotCount() uint {
-	return self.argSlotCount
 }
 
 func newMethods(class *Class, cfMethods []*classfile.MemberInfo) []*Method {
 	methods := make([]*Method, len(cfMethods))
 	for i, cfMethod := range cfMethods {
-		methods[i] = newMethod(class,cfMethod)
+		methods[i] = newMethod(class, cfMethod)
 	}
 	return methods
 }
-
 
 func newMethod(class *Class, cfMethod *classfile.MemberInfo) *Method {
 	method := &Method{}
@@ -30,7 +25,7 @@ func newMethod(class *Class, cfMethod *classfile.MemberInfo) *Method {
 	method.copyAttributes(cfMethod)
 	md := parseMethodDescriptor(method.descriptor)
 	method.calcArgSlotCount(md.parameterTypes)
-	if method.IsNative(){
+	if method.IsNative() {
 		method.injectCodeAttribute(md.returnType)
 	}
 	return method
@@ -45,16 +40,34 @@ func (self *Method) copyAttributes(cfMethod *classfile.MemberInfo) {
 }
 
 func (self *Method) calcArgSlotCount(paramTypes []string) {
-	for _,paramType := range paramTypes{
+	for _, paramType := range paramTypes {
 		self.argSlotCount++
-		if paramType == "J" || paramType == "D"{
+		if paramType == "J" || paramType == "D" {
 			self.argSlotCount++
 		}
 	}
-	if !self.IsStatic(){
-		self.argSlotCount++
+	if !self.IsStatic() {
+		self.argSlotCount++ // `this` reference
 	}
+}
 
+func (self *Method) injectCodeAttribute(returnType string) {
+	self.maxStack = 4 // todo
+	self.maxLocals = self.argSlotCount
+	switch returnType[0] {
+	case 'V':
+		self.code = []byte{0xfe, 0xb1} // return
+	case 'L', '[':
+		self.code = []byte{0xfe, 0xb0} // areturn
+	case 'D':
+		self.code = []byte{0xfe, 0xaf} // dreturn
+	case 'F':
+		self.code = []byte{0xfe, 0xae} // freturn
+	case 'J':
+		self.code = []byte{0xfe, 0xad} // lreturn
+	default:
+		self.code = []byte{0xfe, 0xac} // ireturn
+	}
 }
 
 func (self *Method) IsSynchronized() bool {
@@ -86,20 +99,6 @@ func (self *Method) MaxLocals() uint {
 func (self *Method) Code() []byte {
 	return self.code
 }
-func (self *Method) injectCodeAttribute(returnType string) {
-	self.maxStack = 4
-	self.maxLocals = self.argSlotCount
-	switch returnType[0]{
-	case 'V':self.code = []byte{0xfe,0xb1} //return
-	case 'D':self.code = []byte{0xfe,0xaf} //dreturn
-	case 'F':self.code = []byte{0xfe,0xae} //freturn
-	case 'J':self.code = []byte{0xfe,0xad} //lreturn
-	case 'L','[':self.code = []byte{0xfe,0xb0} //areturn
-	default:
-		self.code = []byte{0xfe,0xac} //ireturn
-	}
+func (self *Method) ArgSlotCount() uint {
+	return self.argSlotCount
 }
-
-
-
-
