@@ -3,6 +3,23 @@ package heap
 type Object struct {
 	class  *Class
 	data  interface{}
+	extra interface{}
+}
+
+func (o *Object) Data() interface{} {
+	return o.data
+}
+
+func (o *Object) SetData(data interface{}) {
+	o.data = data
+}
+
+func (o *Object) Extra() interface{} {
+	return o.extra
+}
+
+func (o *Object) SetExtra(extra interface{}) {
+	o.extra = extra
 }
 
 func newObject(class *Class) *Object {
@@ -30,7 +47,7 @@ func (self *Object) SetRefVar(name,descriptor string,ref *Object){
 	slots.SetRef(field.slotId,ref)
 }
 
-func (self *Object) GetRefVar(name,descriptor string)*Object{
+func (self *Object) GetRefVar(name,descriptor string) *Object{
 	field := self.class.getField(name,descriptor,false)
 	slots := self.data.(Slots)
 	return slots.GetRef(field.slotId)

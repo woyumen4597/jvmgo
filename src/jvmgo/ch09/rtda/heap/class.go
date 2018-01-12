@@ -19,6 +19,11 @@ type Class struct {
 	staticSlotCount   uint
 	staticVars        Slots
 	initStarted       bool
+	jClass            *Object //java.lang.Class 实例
+}
+
+func (c *Class) JClass() *Object {
+	return c.jClass
 }
 
 func (c *Class) Loader() *ClassLoader {
@@ -111,20 +116,19 @@ func (self *Class) NewObject() *Object {
 	return newObject(self)
 }
 
-func (self *Class) InitStarted() bool{
+func (self *Class) InitStarted() bool {
 	return self.initStarted
 }
 
-func (self *Class) StartInit(){
+func (self *Class) StartInit() {
 	self.initStarted = true
 }
 
-
-func (self *Class) GetClinitMethod() *Method{
-	return self.getStaticMethod("<clinit>","()V")
+func (self *Class) GetClinitMethod() *Method {
+	return self.getStaticMethod("<clinit>", "()V")
 }
 
-func (self *Class) ArrayClass() *Class{
+func (self *Class) ArrayClass() *Class {
 	arrayClassName := getArrayClassName(self.name)
 	return self.loader.LoadClass(arrayClassName)
 }
@@ -139,15 +143,19 @@ func (self *Class) isJioSerializable() bool {
 	return self.name == "java/io/Serializable"
 }
 
-func (self *Class) getField(name string ,descriptor string,isStatic bool) *Field{
-	for c := self;c!=nil;c=c.superClass{
-		for _,field := range c.fields{
-			if field.IsStatic()==isStatic &&
-			field.name == name && field.descriptor == descriptor{
+func (self *Class) getField(name string, descriptor string, isStatic bool) *Field {
+	for c := self; c != nil; c = c.superClass {
+		for _, field := range c.fields {
+			if field.IsStatic() == isStatic &&
+				field.name == name && field.descriptor == descriptor {
 				return field
 
 			}
 		}
 	}
 	return nil
+}
+
+func (self *Class) JavaName() string{
+	return strings.Replace(self.name,"/",".",-1)
 }
